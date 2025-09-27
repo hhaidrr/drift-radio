@@ -280,6 +280,66 @@ func printHelp() {
 	fmt.Println()
 }
 
+// Self-update functionality
+func checkForUpdates() error {
+	fmt.Println("🔄 Checking for updates...")
+	
+	// Get the latest release info
+	latest, found, err := selfupdate.DetectLatest("hhaidrr/cli-radio-player")
+	if err != nil {
+		return fmt.Errorf("error detecting latest version: %v", err)
+	}
+	
+	if !found {
+		fmt.Println("ℹ️  No releases found")
+		return nil
+	}
+	
+	// Compare versions
+	if latest.LessOrEqual(Version) {
+		fmt.Printf("✅ You're running the latest version (%s)\n", Version)
+		return nil
+	}
+	
+	fmt.Printf("🆕 New version available: %s (current: %s)\n", latest.Version(), Version)
+	fmt.Print("Do you want to update now? (y/N): ")
+	
+	reader := bufio.NewReader(os.Stdin)
+	response, _ := reader.ReadString('\n')
+	response = strings.TrimSpace(response)
+	
+	if response != "y" && response != "Y" {
+		fmt.Println("Update cancelled")
+		return nil
+	}
+	
+	return performUpdate(latest)
+}
+
+func performUpdate(latest *selfupdate.Release) error {
+	fmt.Println("⬇️  Downloading update...")
+	
+	// Get the executable path
+	exe, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf("error getting executable path: %v", err)
+	}
+	
+	// Perform the update
+	err = selfupdate.UpdateTo(latest.AssetURL, exe)
+	if err != nil {
+		return fmt.Errorf("error updating: %v", err)
+	}
+	
+	fmt.Printf("✅ Successfully updated to version %s!\n", latest.Version())
+	fmt.Println("Please restart the application to use the new version.")
+	return nil
+}
+
+func showVersion() {
+	fmt.Printf("Drift Radio v%s (built %s)\n", Version, BuildTime)
+}
+
 func listStations(stations []Station) {
 	fmt.Println("Available Stations:")
 	for i, s := range stations {
