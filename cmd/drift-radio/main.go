@@ -404,6 +404,10 @@ func interactiveMode(ctx context.Context, p *Player, stations []Station, startId
 				state = "ON"
 			}
 			fmt.Println("Visualization:", state)
+		case "update":
+			if err := checkForUpdates(); err != nil {
+				fmt.Printf("Update failed: %v\n", err)
+			}
 		case "1", "2", "3", "4", "5":
 			idx := int(input[0] - '1')
 			if idx >= 0 && idx < len(stations) {
