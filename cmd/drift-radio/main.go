@@ -18,6 +18,12 @@ import (
 	"github.com/creativeprojects/go-selfupdate"
 )
 
+// Version information - set during build
+var (
+	Version   = "dev"
+	BuildTime = "unknown"
+)
+
 type Station struct {
 	Name        string
 	URL         string
