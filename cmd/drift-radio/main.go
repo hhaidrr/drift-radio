@@ -272,6 +272,7 @@ func printHelp() {
 	fmt.Println("  [v] Change volume")
 	fmt.Println("  [l] List all stations")
 	fmt.Println("  [viz] Toggle visualization")
+	fmt.Println("  [update] Check for updates")
 	fmt.Println("  [q] Quit")
 	fmt.Println("  [h] Show this help")
 	fmt.Println("  [1-5] Switch station")
