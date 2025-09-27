@@ -285,8 +285,17 @@ func printHelp() {
 func checkForUpdates() error {
 	fmt.Println("🔄 Checking for updates...")
 	
+	// Create updater
+	updater, err := selfupdate.NewUpdater(selfupdate.Config{
+		RepositoryOwner: "hhaidrr",
+		RepositoryName:  "cli-radio-player",
+	})
+	if err != nil {
+		return fmt.Errorf("error creating updater: %v", err)
+	}
+	
 	// Get the latest release info
-	latest, found, err := selfupdate.DetectLatest("hhaidrr/cli-radio-player")
+	latest, found, err := updater.DetectLatest()
 	if err != nil {
 		return fmt.Errorf("error detecting latest version: %v", err)
 	}
@@ -297,12 +306,12 @@ func checkForUpdates() error {
 	}
 	
 	// Compare versions
-	if latest.LessOrEqual(Version) {
+	if latest.Version == Version {
 		fmt.Printf("✅ You're running the latest version (%s)\n", Version)
 		return nil
 	}
 	
-	fmt.Printf("🆕 New version available: %s (current: %s)\n", latest.Version(), Version)
+	fmt.Printf("🆕 New version available: %s (current: %s)\n", latest.Version, Version)
 	fmt.Print("Do you want to update now? (y/N): ")
 	
 	reader := bufio.NewReader(os.Stdin)
@@ -314,25 +323,19 @@ func checkForUpdates() error {
 		return nil
 	}
 	
-	return performUpdate(latest)
+	return performUpdate(updater, latest)
 }
 
-func performUpdate(latest *selfupdate.Release) error {
+func performUpdate(updater *selfupdate.Updater, latest *selfupdate.Release) error {
 	fmt.Println("⬇️  Downloading update...")
 	
-	// Get the executable path
-	exe, err := os.Executable()
-	if err != nil {
-		return fmt.Errorf("error getting executable path: %v", err)
-	}
-	
 	// Perform the update
-	err = selfupdate.UpdateTo(latest.AssetURL, exe)
+	err := updater.UpdateTo(latest, true)
 	if err != nil {
 		return fmt.Errorf("error updating: %v", err)
 	}
 	
-	fmt.Printf("✅ Successfully updated to version %s!\n", latest.Version())
+	fmt.Printf("✅ Successfully updated to version %s!\n", latest.Version)
 	fmt.Println("Please restart the application to use the new version.")
 	return nil
 }
