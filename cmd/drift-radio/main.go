@@ -444,11 +444,15 @@ func main() {
 		flagInteractive bool
 		flagStation     int
 		flagVolume      int
+		flagVersion     bool
+		flagUpdate      bool
 	)
 	flag.BoolVar(&flagInteractive, "i", true, "interactive mode")
 	flag.BoolVar(&flagList, "list", false, "list stations and exit")
 	flag.IntVar(&flagStation, "station", 1, "station number to start (1-5)")
 	flag.IntVar(&flagVolume, "volume", 70, "start volume 0-100")
+	flag.BoolVar(&flagVersion, "version", false, "show version and exit")
+	flag.BoolVar(&flagUpdate, "update", false, "check for updates and exit")
 	flag.Parse()
 
 	p := NewPlayer()
