@@ -458,6 +458,19 @@ func main() {
 	p := NewPlayer()
 	p.SetVolume(flagVolume)
 
+	if flagVersion {
+		showVersion()
+		return
+	}
+
+	if flagUpdate {
+		if err := checkForUpdates(); err != nil {
+			fmt.Fprintf(os.Stderr, "Update failed: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	if flagList {
 		listStations(defaultStations)
 		return
