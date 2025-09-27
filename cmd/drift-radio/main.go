@@ -285,17 +285,12 @@ func printHelp() {
 func checkForUpdates() error {
 	fmt.Println("🔄 Checking for updates...")
 	
-	// Create updater
-	updater, err := selfupdate.NewUpdater(selfupdate.Config{
-		RepositoryOwner: "hhaidrr",
-		RepositoryName:  "cli-radio-player",
-	})
-	if err != nil {
-		return fmt.Errorf("error creating updater: %v", err)
-	}
+	// Create repository slug
+	repo := selfupdate.NewRepositorySlug("hhaidrr", "cli-radio-player")
 	
 	// Get the latest release info
-	latest, found, err := updater.DetectLatest()
+	ctx := context.Background()
+	latest, found, err := selfupdate.DetectLatest(ctx, repo)
 	if err != nil {
 		return fmt.Errorf("error detecting latest version: %v", err)
 	}
@@ -306,12 +301,12 @@ func checkForUpdates() error {
 	}
 	
 	// Compare versions
-	if latest.Version == Version {
+	if latest.Version() == Version {
 		fmt.Printf("✅ You're running the latest version (%s)\n", Version)
 		return nil
 	}
 	
-	fmt.Printf("🆕 New version available: %s (current: %s)\n", latest.Version, Version)
+	fmt.Printf("🆕 New version available: %s (current: %s)\n", latest.Version(), Version)
 	fmt.Print("Do you want to update now? (y/N): ")
 	
 	reader := bufio.NewReader(os.Stdin)
@@ -323,19 +318,19 @@ func checkForUpdates() error {
 		return nil
 	}
 	
-	return performUpdate(updater, latest)
+	return performUpdate(ctx, latest, repo)
 }
 
-func performUpdate(updater *selfupdate.Updater, latest *selfupdate.Release) error {
+func performUpdate(ctx context.Context, latest *selfupdate.Release, repo selfupdate.Repository) error {
 	fmt.Println("⬇️  Downloading update...")
 	
 	// Perform the update
-	err := updater.UpdateTo(latest, true)
+	updatedRelease, err := selfupdate.UpdateSelf(ctx, Version, repo)
 	if err != nil {
 		return fmt.Errorf("error updating: %v", err)
 	}
 	
-	fmt.Printf("✅ Successfully updated to version %s!\n", latest.Version)
+	fmt.Printf("✅ Successfully updated to version %s!\n", updatedRelease.Version())
 	fmt.Println("Please restart the application to use the new version.")
 	return nil
 }
