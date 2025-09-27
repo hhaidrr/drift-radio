@@ -284,52 +284,52 @@ func printHelp() {
 // Self-update functionality
 func checkForUpdates() error {
 	fmt.Println("🔄 Checking for updates...")
-	
+
 	// Create repository slug
 	repo := selfupdate.NewRepositorySlug("hhaidrr", "cli-radio-player")
-	
+
 	// Get the latest release info
 	ctx := context.Background()
 	latest, found, err := selfupdate.DetectLatest(ctx, repo)
 	if err != nil {
 		return fmt.Errorf("error detecting latest version: %v", err)
 	}
-	
+
 	if !found {
 		fmt.Println("ℹ️  No releases found")
 		return nil
 	}
-	
+
 	// Compare versions
 	if latest.Version() == Version {
 		fmt.Printf("✅ You're running the latest version (%s)\n", Version)
 		return nil
 	}
-	
+
 	fmt.Printf("🆕 New version available: %s (current: %s)\n", latest.Version(), Version)
 	fmt.Print("Do you want to update now? (y/N): ")
-	
+
 	reader := bufio.NewReader(os.Stdin)
 	response, _ := reader.ReadString('\n')
 	response = strings.TrimSpace(response)
-	
+
 	if response != "y" && response != "Y" {
 		fmt.Println("Update cancelled")
 		return nil
 	}
-	
+
 	return performUpdate(ctx, latest, repo)
 }
 
 func performUpdate(ctx context.Context, latest *selfupdate.Release, repo selfupdate.Repository) error {
 	fmt.Println("⬇️  Downloading update...")
-	
+
 	// Perform the update
 	updatedRelease, err := selfupdate.UpdateSelf(ctx, Version, repo)
 	if err != nil {
 		return fmt.Errorf("error updating: %v", err)
 	}
-	
+
 	fmt.Printf("✅ Successfully updated to version %s!\n", updatedRelease.Version())
 	fmt.Println("Please restart the application to use the new version.")
 	return nil
