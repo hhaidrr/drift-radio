@@ -14,6 +14,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/creativeprojects/go-selfupdate"
 )
 
 type Station struct {
